@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="Piotr Tamiłowski">
+    <title>Konwerter PLN</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        header{
+            height: 400px;
+            background: rgb(9, 4, 116);
+            position: relative;
+        }
+        #wrapper{
+            position: relative;
+            top: -200px;
+            width: 80%;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        h1{
+            color: white;
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .window{
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 5px 5px 10px rgba(37, 37, 37, 0.3);
+        }
+
+    </style>
+</head>
+<body>
+    <header>
+    </header>
+    <main>
+        <div id="wrapper">
+            <h1>Kursy walut</h1>
+            <div class="window">
+                <div>
+                    <div>
+                        <label for="">Kwota</label>
+                        <input type="number" value="1.00">
+                    </div>
+                    <button id="currencySwitch"></button>
+                    <div>
+                        <label for="selectCurrencies">Wymiana na</label>
+                        <select name="" id="selectCurrencies">
+                            <option value="" selected disabled>Wybierz walutę z listy</option>
+                        </select>
+                    </div>
+                    <div>
+                        <p>Tyle złotych to tyle dolarów</p>
+                    </div>
+                    <button id="convert">Konwertuj</button>
+                </div>
+            </div>
+
+            <div id="chartPlaceholder">
+                <!-- TUTAJ Będzie WYKRES   Z PRZYCISKAMI ZMIENIAJĄCYMI ZAKRES CZASU -->
+                <!-- <canvas id="currencyChart" style="width:100%;max-width:600px"></canvas> -->
+                <button></button>
+                <button></button>
+                <button></button>
+            </div>
+            <div>
+                <!-- 2 karty z przelicznikami walut -->
+                <div></div>
+                <div></div>
+            </div>
+            <div>
+                <!-- Lista innych najpopularniejszych walut -->
+            </div>
+
+
+
+        </div>
+        <footer></footer>
+    </main>
+    <script>
+        const URL2 = "http://api.nbp.pl/api/exchangerates/tables/a/last/60";
+        let currenciesObj;
+
+        let data = fetch(URL2);
+        data.then(function(response) {
+            response.json().then(function(response2){
+                currenciesObj = response2;
+                const selectCurrencies = document.getElementById("selectCurrencies");
+                console.log(currenciesObj);
+
+                for(let i = 0; i < currenciesObj[0]["rates"].length; i++){
+                    let newOption = document.createElement("option");
+                    newOption.value = i;
+                    newOption.textContent = `${currenciesObj[0]["rates"][i]["code"]} ${currenciesObj[0]["rates"][i]["currency"]}`;
+                    selectCurrencies.appendChild(newOption);
+                }
+
+                
+            })
+        })
+
+
+        const convertBtn = document.getElementById("convert");
+
+        convertBtn.addEventListener("click", function(){
+
+            // remove chart if exists
+            if(document.getElementById("currencyChart") != null){
+               document.getElementById("currencyChart").remove();
+            }
+            
+            // create new chart and add it to DOM
+            let cv = document.createElement("canvas");
+            cv.setAttribute("id", "currencyChart");
+            cv.style.width = "100%";
+            cv.style.height = "600px";
+            document.getElementById("chartPlaceholder").appendChild(cv);
+
+
+            // chosenCurrency contains value assign to option from select where user choose currency
+            const chosenCurrency = document.getElementById("selectCurrencies").value;
+
+
+            let xValues = [];
+            let yValues = [];
+            let minY;
+            let maxY;
+
+        
+            
+            // push dates from object to xValues array
+            for(let i = 0; i < currenciesObj.length; i++){
+                xValues.push(currenciesObj[i]["effectiveDate"]);   
+            }
+            
+
+            // push currency rates from object to yValues array and set minY and maxY
+            for(let i = 0; i < currenciesObj.length; i++){
+                yValues.push(currenciesObj[i]["rates"][chosenCurrency]["mid"])  
+                if(i == 0){
+                    minY = currenciesObj[i]["rates"][chosenCurrency]["mid"];
+                    maxY = currenciesObj[i]["rates"][chosenCurrency]["mid"];
+                } else {
+                    if(currenciesObj[i]["rates"][chosenCurrency]["mid"] < minY){
+                        minY = currenciesObj[i]["rates"][chosenCurrency]["mid"]
+                    }
+                    if(currenciesObj[i]["rates"][chosenCurrency]["mid"] > maxY){
+                        maxY = currenciesObj[i]["rates"][chosenCurrency]["mid"]
+                    }
+                }
+            }
+
+            // round up maxY and round down minY, to make chart looks better (otherwise if user choose one of the currencies with the lowest rates like 1:10000, the chart will be flat)
+            if(maxY > 1){
+                maxY = Math.ceil(maxY * 10) / 10;
+            } else if( maxY > 0.1){
+                maxY = Math.ceil(maxY * 100) / 100;
+            } else if( maxY > 0.01){
+                maxY = Math.ceil(maxY * 1000) / 1000;
+            } else if( maxY > 0.001){
+                maxY = Math.ceil(maxY * 10000) / 10000;
+            }else {
+                maxY = Math.ceil(maxY * 100000) / 100000;
+            }
+
+            if(minY > 1){
+                minY = Math.floor(minY * 10) / 10
+            } else if(minY > 0.1){
+                minY = Math.floor(minY * 100) / 100
+            } else if(minY > 0.01){
+                minY = Math.floor(minY * 1000) / 1000
+            } else if(minY > 0.001){
+                minY = Math.floor(minY * 10000) / 10000
+            } else {
+                minY = Math.floor(minY * 100000) / 100000
+            }
+          
+
+            
+                        
+            let chart = new Chart("currencyChart", {
+            type: "line",
+            data: {
+                labels: xValues,
+                datasets: [{
+                    fill: false,
+                    lineTension: 0,
+                    backgroundColor: "rgba(0,0,255,1.0)",
+                    borderColor: "rgba(0,0,255,0.1)",
+                    data: yValues
+                }]
+            },
+            options: {
+                legend: {display: false},
+                scales: {
+                // yAxes: [{ticks: {min: minY, max: Math.ceil(maxY * 100) / 100}}],
+                    yAxes: [{ticks: {min: minY, max: maxY}}],
+                }
+            },
+        });
+        })
+
+       
+    </script>
+</body>
+</html>
