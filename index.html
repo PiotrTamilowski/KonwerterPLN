@@ -67,11 +67,16 @@
             </div>
 
             <div id="chartPlaceholder">
-                <!-- TUTAJ Będzie WYKRES   Z PRZYCISKAMI ZMIENIAJĄCYMI ZAKRES CZASU -->
-                <!-- <canvas id="currencyChart" style="width:100%;max-width:600px"></canvas> -->
                 <button></button>
                 <button></button>
                 <button></button>
+            </div>
+            <div id="ranges">
+                <button id="7d">7 Dni</button>
+                <button id="14d">14 Dni</button>
+                <button id="30d">30 Dni</button>
+                <button id="60d">60 Dni</button>
+                <button id="all">Wszystko</button>
             </div>
             <div>
                 <!-- 2 karty z przelicznikami walut -->
@@ -91,28 +96,82 @@
         const URL2 = "http://api.nbp.pl/api/exchangerates/tables/a/last/60";
         let currenciesObj;
 
+        // fetch data from NBP server
         let data = fetch(URL2);
         data.then(function(response) {
             response.json().then(function(response2){
                 currenciesObj = response2;
                 const selectCurrencies = document.getElementById("selectCurrencies");
-                console.log(currenciesObj);
 
+                // Create and append options for currencies select
                 for(let i = 0; i < currenciesObj[0]["rates"].length; i++){
                     let newOption = document.createElement("option");
                     newOption.value = i;
                     newOption.textContent = `${currenciesObj[0]["rates"][i]["code"]} ${currenciesObj[0]["rates"][i]["currency"]}`;
                     selectCurrencies.appendChild(newOption);
                 }
-
-                
             })
         })
 
 
+        
         const convertBtn = document.getElementById("convert");
+        const allBtn = document.getElementById("all");
+        const d60Btn = document.getElementById("60d");
+        const d30Btn = document.getElementById("30d");
+        const d14Btn = document.getElementById("14d");
+        const d7Btn = document.getElementById("7d");
+        
 
+        
         convertBtn.addEventListener("click", function(){
+            createChart(60);
+        })
+        d60Btn.addEventListener("click", function(){
+            createChart(60);
+        })
+        d30Btn.addEventListener("click", function(){
+            createChart(30);
+        })
+        d14Btn.addEventListener("click", function(){
+            createChart(14);
+        })
+        d7Btn.addEventListener("click", function(){
+            createChart(7);
+        })
+
+        
+
+
+
+        
+
+
+
+
+
+        function createChart(range){
+
+            // the data provided by NBP is not continuous, info about currency rates during weekend is missing, so this code checks which element in the currencies object contains today's date minus range (if you check the data during weekend, the chart will start from Monday for example if you choose last 7 days and it's sunday or saturday - the chart will contain data only from between Monday and Friday) 
+            const todaysDate = new Date();
+                       
+            let chosenDate = new Date(todaysDate.getTime() - (1000 * 60 * 60 * 24 * range))
+            chosenDate = `${chosenDate.getFullYear()}-${chosenDate.getMonth()+1 < 10 ? "0" + (chosenDate.getMonth()+1) : chosenDate.getMonth()+1}-${chosenDate.getDate() < 10 ?"0" + chosenDate.getDate() : chosenDate.getDate()}`;
+            
+            let dateIndex;
+            for(let i = currenciesObj.length-1; i >= 0; i--){
+                range = i
+                if(currenciesObj[i]["effectiveDate"] == chosenDate){
+                    break;
+                } 
+                if(currenciesObj[i]["effectiveDate"] < chosenDate){
+                    i++;
+                    range = i;
+                    break;
+                }   
+            }
+            console.log(range)
+            
 
             // remove chart if exists
             if(document.getElementById("currencyChart") != null){
@@ -139,15 +198,15 @@
         
             
             // push dates from object to xValues array
-            for(let i = 0; i < currenciesObj.length; i++){
+            for(let i = range; i < currenciesObj.length; i++){
                 xValues.push(currenciesObj[i]["effectiveDate"]);   
             }
             
 
             // push currency rates from object to yValues array and set minY and maxY
-            for(let i = 0; i < currenciesObj.length; i++){
+            for(let i = range; i < currenciesObj.length; i++){
                 yValues.push(currenciesObj[i]["rates"][chosenCurrency]["mid"])  
-                if(i == 0){
+                if(i == range){
                     minY = currenciesObj[i]["rates"][chosenCurrency]["mid"];
                     maxY = currenciesObj[i]["rates"][chosenCurrency]["mid"];
                 } else {
@@ -187,7 +246,7 @@
           
 
             
-                        
+            // create Chart            
             let chart = new Chart("currencyChart", {
             type: "line",
             data: {
@@ -203,12 +262,14 @@
             options: {
                 legend: {display: false},
                 scales: {
-                // yAxes: [{ticks: {min: minY, max: Math.ceil(maxY * 100) / 100}}],
                     yAxes: [{ticks: {min: minY, max: maxY}}],
+                    xAxes: [{ticks: {min: currenciesObj[range]["effectiveDate"], max: currenciesObj[currenciesObj.length-1]["effectiveDate"]}}] 
                 }
             },
         });
-        })
+        }
+
+        
 
        
     </script>
