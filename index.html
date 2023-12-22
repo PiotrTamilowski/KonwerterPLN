@@ -76,12 +76,113 @@
                 <button id="14d">14 Dni</button>
                 <button id="30d">30 Dni</button>
                 <button id="60d">60 Dni</button>
-                <button id="all">Wszystko</button>
             </div>
-            <div>
+            <div id="exchangeRates">
                 <!-- 2 karty z przelicznikami walut -->
-                <div></div>
-                <div></div>
+                <div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
             <div>
                 <!-- Lista innych najpopularniejszych walut -->
@@ -170,8 +271,7 @@
                     break;
                 }   
             }
-            console.log(range)
-            
+
 
             // remove chart if exists
             if(document.getElementById("currencyChart") != null){
@@ -267,6 +367,77 @@
                 }
             },
         });
+
+        // Windows with exchange rates
+            const firstExchangeWindow = document.querySelector("#exchangeRates > div:first-child");
+            const firstExchangeWindowTH = document.querySelector("#exchangeRates > div:first-child > table > thead");
+            const firstExchangeWindowTB = document.querySelector("#exchangeRates > div:first-child > table > tbody");
+
+            const secondExchangeWindow = document.querySelector("#exchangeRates > div:last-child");
+            const secondExchangeWindowTH = document.querySelector("#exchangeRates > div:last-child > table > thead");
+            const secondExchangeWindowTB = document.querySelector("#exchangeRates > div:last-child > table > tbody");
+
+            const currencyCode = currenciesObj[0]["rates"][chosenCurrency]["code"];
+            const exchangeRate = currenciesObj[currenciesObj.length-1]["rates"][chosenCurrency]["mid"];
+
+
+
+        // Insert values into exchange rates tables
+
+        // table headers
+            secondExchangeWindowTH.children[0].children[0].textContent = currencyCode;
+            secondExchangeWindowTH.children[0].children[1].textContent = "PLN";
+
+            firstExchangeWindowTH.children[0].children[0].textContent = "PLN";
+            firstExchangeWindowTH.children[0].children[1].textContent = currencyCode;
+
+        // table body
+
+            firstExchangeWindowTB.children[0].children[0].textContent = `1 PLN`;
+            firstExchangeWindowTB.children[1].children[0].textContent = `5 PLN`;
+            firstExchangeWindowTB.children[3].children[0].textContent = `10 PLN`;
+            firstExchangeWindowTB.children[4].children[0].textContent = `25 PLN`;
+            firstExchangeWindowTB.children[5].children[0].textContent = `50 PLN`;
+            firstExchangeWindowTB.children[6].children[0].textContent = `100 PLN`;
+            firstExchangeWindowTB.children[7].children[0].textContent = `250 PLN`;
+            firstExchangeWindowTB.children[8].children[0].textContent = `500 PLN`;
+            firstExchangeWindowTB.children[9].children[0].textContent = `1000 PLN`;
+
+            firstExchangeWindowTB.children[0].children[1].textContent = `${(1 / exchangeRate).toFixed(3)} ${currencyCode}`;
+            firstExchangeWindowTB.children[1].children[1].textContent = `${(5 / exchangeRate).toFixed(3)} ${currencyCode}`;
+            firstExchangeWindowTB.children[3].children[1].textContent = `${(10 / exchangeRate).toFixed(3)} ${currencyCode}`;
+            firstExchangeWindowTB.children[4].children[1].textContent = `${(25 / exchangeRate).toFixed(3)} ${currencyCode}`;
+            firstExchangeWindowTB.children[5].children[1].textContent = `${(50 / exchangeRate).toFixed(3)} ${currencyCode}`;
+            firstExchangeWindowTB.children[6].children[1].textContent = `${(100 / exchangeRate).toFixed(3)} ${currencyCode}`;
+            firstExchangeWindowTB.children[7].children[1].textContent = `${(250 / exchangeRate).toFixed(3)} ${currencyCode}`;
+            firstExchangeWindowTB.children[8].children[1].textContent = `${(500 / exchangeRate).toFixed(3)} ${currencyCode}`;
+            firstExchangeWindowTB.children[9].children[1].textContent = `${(1000 / exchangeRate).toFixed(3)} ${currencyCode}`;
+
+
+            secondExchangeWindowTB.children[0].children[0].textContent = `1 ${currencyCode}`;
+            secondExchangeWindowTB.children[1].children[0].textContent = `5 ${currencyCode}`;
+            secondExchangeWindowTB.children[3].children[0].textContent = `10 ${currencyCode}`;
+            secondExchangeWindowTB.children[4].children[0].textContent = `25 ${currencyCode}`;
+            secondExchangeWindowTB.children[5].children[0].textContent = `50 ${currencyCode}`;
+            secondExchangeWindowTB.children[6].children[0].textContent = `100 ${currencyCode}`;
+            secondExchangeWindowTB.children[7].children[0].textContent = `250 ${currencyCode}`;
+            secondExchangeWindowTB.children[8].children[0].textContent = `500 ${currencyCode}`;
+            secondExchangeWindowTB.children[9].children[0].textContent = `1000 ${currencyCode}`;
+
+            secondExchangeWindowTB.children[0].children[1].textContent = `${(exchangeRate).toFixed(3)} PLN`;
+            secondExchangeWindowTB.children[1].children[1].textContent = `${(exchangeRate * 5).toFixed(3)} PLN`;
+            secondExchangeWindowTB.children[3].children[1].textContent = `${(exchangeRate * 10).toFixed(3)} PLN`;
+            secondExchangeWindowTB.children[4].children[1].textContent = `${(exchangeRate * 25).toFixed(3)} PLN`;
+            secondExchangeWindowTB.children[5].children[1].textContent = `${(exchangeRate * 50).toFixed(3)} PLN`;
+            secondExchangeWindowTB.children[6].children[1].textContent = `${(exchangeRate * 100).toFixed(3)} PLN`;
+            secondExchangeWindowTB.children[7].children[1].textContent = `${(exchangeRate * 250).toFixed(3)} PLN`;
+            secondExchangeWindowTB.children[8].children[1].textContent = `${(exchangeRate * 500).toFixed(3)} PLN`;
+            secondExchangeWindowTB.children[9].children[1].textContent = `${(exchangeRate * 1000).toFixed(3)} PLN`;
+
+
+            
+
+
         }
 
         
